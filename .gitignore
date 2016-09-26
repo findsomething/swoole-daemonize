@@ -1,0 +1,11 @@
+/vendor/
+/composer.phar
+/config/config.php
+/config/daemonize.php
+/var/logs/*
+/bin/phinx
+/bin/doctrine-dbal
+/phpunit.xml
+/phinx.php
+/composer.lock
+!.gitkeep

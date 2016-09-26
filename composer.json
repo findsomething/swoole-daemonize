@@ -1,0 +1,18 @@
+{
+  "name": "fsth/swoole-daemonize",
+  "description": "swoole daemonize",
+  "type": "library",
+  "license": "MIT",
+  "autoload": {
+    "psr-4": {
+      "FSth\\SwooleDaemonize\\": "src/",
+      "FSth\\SwooleDaemonize\\Tests\\": "tests/"
+    }
+  },
+  "require": {
+    "psr/log": ">=1.0.0"
+  },
+  "config": {
+    "bin-dir": "bin"
+  }
+}

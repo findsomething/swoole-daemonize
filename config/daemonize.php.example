@@ -1,0 +1,18 @@
+<?php
+/**
+ * Created by PhpStorm.
+ * User: lihan
+ * Date: 16/9/26
+ * Time: 14:52
+ */
+return array(
+    'processes' => array(
+        'DemoProcess' => array(
+            'class' => "FSth\\SwooleDaemonize\\Demo\\DemoProcess",
+        )
+    ),
+    'bootstrap' => __DIR__.'/../bootstrap/bootstrap.php',
+    'log' => __DIR__ . '/../var/logs/process.log',
+    'pidPath' => __DIR__. '/../var/logs/',
+    'daemonize' => 1,
+);

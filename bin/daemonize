@@ -1,0 +1,108 @@
+#!/usr/bin/env php
+<?php
+/**
+ * Created by PhpStorm.
+ * User: lihan
+ * Date: 16/9/26
+ * Time: 11:45
+ */
+
+$runArgv = $_SERVER['argv'];
+$runArgc = $_SERVER['argc'];
+
+class Run
+{
+    private $runArgv;
+    private $runArgc;
+    private $allowOperations = array('start', 'stop', 'restart');
+
+    private $processes;
+    private $config;
+    private $operation;
+    private $processName = null;
+    private $waitToRun = array();
+
+    public function __construct($runArgv, $runArgc)
+    {
+        $this->runArgc = $runArgc;
+        $this->runArgv = $runArgv;
+    }
+
+    public function listen()
+    {
+        try {
+            $this->check();
+            $this->run();
+        } catch (\Exception $e) {
+            $this->usage($e->getMessage());
+        }
+    }
+
+    protected function run()
+    {
+        foreach ($this->waitToRun as $processName => $processClass) {
+            $process = new $processClass['class']($processName, $this->config);
+            $process->setPath($this->config['pidPath']);
+            $process->{$this->operation}();
+        }
+    }
+
+    protected function check()
+    {
+        if ($this->runArgc < 3 || $this->runArgc > 5) {
+            throw new \Exception("wrong arguments");
+        }
+        $this->setConfig();
+        $this->setOperation();
+        $this->setProcessName();
+    }
+
+    protected function setConfig()
+    {
+        $config = $this->runArgv[2];
+        if (!file_exists($config)) {
+            throw new \Exception("未知config文件{$config}");
+        }
+        $this->config = include $config;
+        if (!empty($this->config['bootstrap'])) {
+            if (!file_exists($this->config['bootstrap'])) {
+                throw new \Exception("未知bootstrap{$this->config['bootstrap']}");
+            } else {
+                include_once $this->config['bootstrap'];
+            }
+        }
+        if (empty($this->config['processes'])) {
+            throw new \Exception("config里必须包含processes数据");
+        }
+        $this->processes = $this->config['processes'];
+    }
+
+    protected function setOperation()
+    {
+        $this->operation = $this->runArgv[1];
+        if (!in_array($this->operation, $this->allowOperations)) {
+            throw new \Exception("非法操作{$this->operation}");
+        }
+    }
+
+    protected function setProcessName()
+    {
+        if (empty($this->runArgv[3])) {
+            throw new \Exception("未知processName");
+        }
+        $this->processName = $this->runArgv[3];
+        if (!in_array($this->processName, array_keys($this->processes))) {
+            throw new \Exception("未知process{$this->processName}");
+        }
+        $this->waitToRun[$this->processName] = $this->processes[$this->processName];
+    }
+
+    protected function usage($msg)
+    {
+        echo "{$msg}\nUsage: bin/daemonize start|stop|restart config processName\n";
+        return;
+    }
+}
+
+$run = new Run($runArgv, $runArgc);
+$run->listen();

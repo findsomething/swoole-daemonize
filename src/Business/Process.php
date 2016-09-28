@@ -73,6 +73,13 @@ abstract class Process
         $this->clearUp();
     }
 
+    public function restart()
+    {
+        $this->stop();
+        sleep(1);
+        $this->start();
+    }
+
     abstract protected function execute();
 
     protected function clearUp()
